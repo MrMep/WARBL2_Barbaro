@@ -73,8 +73,14 @@
                   <input class="tinyConsole noTouch" type="text" id="tinyConsole"/>
                </div>
             </div>
-            <div class="middleControlBox">
-               <div class="fingeringRadio">
+
+            <div class="topNavigationRadio" id="topNavigationRadio">
+               <div class="backgroundDiv"></div>
+            </div>
+
+
+            <div class="middleControlBox" id="middleControlBox">
+               <div class="fingeringRadio" id="fingeringRadio">
                   <div class="tab tab0">
                      <input type="radio" value="0" name="quality" id="fingering0" onChange="sendFingeringRadio(value)" checked=checked />
                      <label for="fingering0">
@@ -99,6 +105,8 @@
                         <div class="instrument" id=instrument3Label>Instrument 3:</div>
                      </label>
                   </div>
+               </div>
+               <div class="navigationRadio" id="navigationRadio">
                </div>
                <div class="tabBorder"></div>
                <div class="tabBorder1"></div>
@@ -1737,7 +1745,7 @@
                </div>
             </div>
          </div>
-         <div class="controlbox">
+         <div class="controlbox" id="opticalCalibration">
             <h2 class="controlboxtitle noTouch">
                Optical Sensor Calibration
                <button type="button" class="infocircle" onClick="modal(9)">  <img  class = "info" src="img/info-circle.svg"></img></button>

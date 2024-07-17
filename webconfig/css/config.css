@@ -308,6 +308,8 @@ input {
 
 #topControls {
 	display: block;
+	position: absolute;
+	top: 0px;
 }
 
 #customChart {
@@ -1013,7 +1015,7 @@ input {
 .fingeringSelectContainer {
 	display: block;
 	position: absolute;
-	height: 200px;
+	height: 150px;
 	left: 50px;
 	top: 317px;
 	z-index:200;
@@ -4825,4 +4827,122 @@ input:disabled + .halfHoleSlider:before {
 	width: 60px;
 	top: 400px;
 	left: 350px;
+}
+
+
+/* TOP NAVIGATION BAR */
+
+.backgroundDiv {
+	position: absolute;
+	top: 200px;
+	left: 0px;
+	height: 790px;
+	width: 1024px;
+	border-bottom: none;
+	-webkit-box-shadow: 0px -4px 13px rgba(30, 30, 30, 1);
+	-moz-box-shadow: 0px -4px 13px rgba(30, 30, 30, 1);
+	box-shadow: 0px -4px 13px rgba(30, 30, 30, 1);
+	z-index: 0;
+	border-radius: 0px 0px 25px 25px;
+	background-color: var(--main-bg-color);
+}
+
+.topNavigationRadio {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+.topNavigationLabelDiv {
+	display: inline-block;
+}
+
+
+.topNavtab label {
+	position: absolute;
+	top: 160px;
+	left: 0;
+	height: 40px;
+	/* width: 120px; */
+	background: var(--disabled-bg-color);
+	margin: 0;
+	padding-top: 0px;
+	border-radius: 10px 10px 0px 0px;
+	border-bottom: none;
+	color: #777;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	-webkit-box-shadow: 0px -4px 13px rgba(50, 50, 50, 0.5);
+	-moz-box-shadow: 0px -4px 13px rgba(50, 50, 50, 0.5);
+	box-shadow: 0px -4px 13px rgba(50, 50, 50, 0.5);
+}
+
+.topNavigationRadio [type=radio]:not(old) + label > span {
+	display: none;
+}
+
+.topNavigationRadio input[type=radio]:not(old):checked + label {
+	z-index: 7;
+	background: var(--main-bg-color);
+	border-bottom: 2px solid var(--main-bg-color);
+	height: 40px;
+	color: var(--text-color);
+	-webkit-box-shadow: 0px -4px 13px rgba(30, 30, 30, 1);
+	-moz-box-shadow: 0px -4px 13px rgba(30, 30, 30, 1);
+	box-shadow: 0px -4px 13px rgba(30, 30, 30, 1);
+}
+
+/* END TOP NAV BAR*/
+
+/*INSTRUMENT NAV BAR */
+
+.navigationLabelDiv {
+	display: inline-block;
+}
+
+.navigationRadio {
+	position: absolute;
+	top: 120px;
+	left: 50px;
+}
+
+
+.instrNavtab label {
+	position: absolute;
+	top: 135px;
+	left: 0;
+	height: 40px;
+	/* width: 120px; */
+	background: var(--disabled-bg-color);
+	margin: 0;
+	padding-top: 0px;
+	border-radius: 10px 10px 0px 0px;
+	border-bottom: none;
+	color: #777;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	-webkit-box-shadow: 0px -4px 13px rgba(50, 50, 50, 0.5);
+	-moz-box-shadow: 0px -4px 13px rgba(50, 50, 50, 0.5);
+	box-shadow: 0px -4px 13px rgba(50, 50, 50, 0.5);
+}
+
+.navigationRadio [type=radio]:not(old) + label > span {
+	display: none;
+}
+
+.navigationRadio input[type=radio]:not(old):checked + label {
+	z-index: 7;
+	background: var(--main-bg-color);
+	border-bottom: 2px solid var(--main-bg-color);
+	height: 40px;
+	color: var(--text-color);
+	-webkit-box-shadow: 0px -4px 13px rgba(30, 30, 30, 1);
+	-moz-box-shadow: 0px -4px 13px rgba(30, 30, 30, 1);
+	box-shadow: 0px -4px 13px rgba(30, 30, 30, 1);
 }

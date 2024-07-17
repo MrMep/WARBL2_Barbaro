@@ -114,7 +114,263 @@ window.onclick = function (event) {
 }
 
 
+/*
+* Navigation helpers
+*/
+//Var to hold current page width, to be used for responsiveness
+var pageWidth = 1024;
 
+/* Class for each nav bar item
+element: the id of the box to show when selected
+label: the label text for the option
+group: the radio group name
+enabled: redundant for now
+minFwVersion: minumun fw version that enables this option
+*/
+class NavBarItem {
+    constructor(element, label, group, enabled, minFwVersion) {
+        this.element = element;
+        this.name = label;
+        this.group = group;
+        this.enabled = enabled;
+        this.minFwVersion = minFwVersion;
+    }
+
+    isEnabled() {
+        return (this.enabled && (version >= this.minFwVersion || version == "Unknown"));
+    }
+
+    /* This generates a radio element for navbar
+    index: radio group index
+    width: element (label) width
+    row: nav bar row (for top parameter)
+    rowIndex: index within the row
+    */
+    getElement(index, width, row, rowIndex) {
+
+        const element = document.createElement("div");
+        element.classList.add(this.group + 'tab');
+        // element.classList.add('topNavtab' + index);
+        var elStyle = 'position: absolute; top: '+ row*50 + 'px; left: ' + width*rowIndex + 'px;'
+        element.setAttribute("style", elStyle);
+
+        const inputEl = document.createElement("input");
+
+        inputEl.type = 'radio';
+        inputEl.value = index;
+        inputEl.name = this.group;
+        inputEl.id = this.group + index;
+        inputEl.setAttribute("onChange", 'on' + this.group + 'Radio(value);');
+
+        element.appendChild(inputEl);
+
+        const labelEl = document.createElement("label");
+        labelEl.setAttribute("for", this.group + index);
+        var labelStyle = 'z-index: ' + index+50 + '; width: ' + width + 'px !important; line-height: 40px !important;'
+        labelEl.setAttribute("style", labelStyle);
+
+        const spanEl = document.createElement("span");
+        const spanEl1 = document.createElement("span");
+        spanEl.appendChild(spanEl1);
+        labelEl.appendChild(spanEl);
+
+        const divEl = document.createElement("div");
+        divEl.classList.add(this.group + 'LabelDiv');
+        divEl.id = this.group + 'Label' + index;
+        divEl.innerHTML = this.name;
+
+        labelEl.appendChild(divEl);
+        element.appendChild(labelEl);
+
+        return element;
+
+    }
+  }
+
+//Arrays containing nav bar elements
+var topNavBarElements = [];
+var instrNavBarElements = [];
+
+//Prepares nav bars
+function initNavBars() {
+
+    //Top nav
+    topNavBarElements.push(new NavBarItem('middleControlBox', 'Home', 'topNav', true, 0));
+    topNavBarElements.push(new NavBarItem('opticalCalibration', 'Calibration', 'topNav', true, 0));
+    topNavBarElements.push(new NavBarItem('WARBL2Settings', 'WARBL2', 'topNav', true, 40));
+
+    var elCount = 0;
+    for (var i = 0; i < topNavBarElements.length; i++) {
+        if (topNavBarElements[i].isEnabled()) elCount++;
+    }
+
+    var elWidth = pageWidth/elCount;
+
+    for (var i = 0; i < elCount; i++) {
+        if (topNavBarElements[i].isEnabled()) {
+            var divEl = topNavBarElements[i].getElement(i, elWidth, 0, i);
+            document.getElementById("topNavigationRadio").appendChild(divEl);
+        }
+    }
+
+
+    //Instr nav
+    instrNavBarElements.push(new NavBarItem('topControls', 'Main', 'instrNav', true, 0));
+    instrNavBarElements.push(new NavBarItem('box5', 'Vibrato and Slide', 'instrNav', true, 0));
+    instrNavBarElements.push(new NavBarItem('box1', 'Trigger and Register', 'instrNav', true, 0));
+    instrNavBarElements.push(new NavBarItem('box6', 'Pressure', 'instrNav', true,40));
+    instrNavBarElements.push(new NavBarItem('box10', 'IMU', 'instrNav', true, 40));
+    instrNavBarElements.push(new NavBarItem('box3', 'Drones', 'instrNav', true, 0));
+    instrNavBarElements.push(new NavBarItem('buttonBox', 'Buttons', 'instrNav', true, 0));
+    instrNavBarElements.push(new NavBarItem('importexport', 'Import/Export', 'instrNav', true, 0));
+
+    elCount = 0;
+    for (var i = 0; i < instrNavBarElements.length; i++) {
+        if (instrNavBarElements[i].isEnabled()) elCount++;
+    }
+
+    //This is dynamic
+    elWidth = (pageWidth -100)/elCount;
+    var splitPoint = 0;
+    if (elWidth < 184) {
+        splitPoint = Math.ceil(elCount/ Math.ceil(elCount / ((pageWidth -100) / 184)));
+        elWidth =  (pageWidth -100)/splitPoint;
+    }
+    var row = -1;
+    var index = -1;
+    for (var i = 0; i < elCount; i++) {
+        if (splitPoint > 0 &&  i % splitPoint == 0) {
+            row++;
+            index = -1;
+        }
+        index++;
+        if (instrNavBarElements[i].isEnabled()) {
+            var divEl = instrNavBarElements[i].getElement(i, elWidth, row, index);
+            document.getElementById("navigationRadio").appendChild(divEl);
+        }
+    }
+    
+}
+
+//Are we using the new compactview? for now we append ?compact=1 to the url of the page
+var compactView = false;
+
+//Various initializations
+function initPage() {
+
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+      });	
+
+    if (params.compact) {
+        compactView = true;
+
+        if (topNavBarElements.length == 0) initNavBars();
+
+        // document.getElementById("topcontrolbox").setAttribute('style', 'height:860px !important;');
+        document.getElementById('topcontrolbox').style.backgroundColor = "transparent";
+
+        document.getElementById('middleControlBox').style.top = "80px";
+
+        document.getElementById("topNav0").click();
+        document.getElementById("topNav0").dispatchEvent(new Event('change'));
+        
+        document.getElementById("instrNav0").click();
+        oninstrNavRadio(0);
+
+
+    } else {
+        document.getElementById("topNavigationRadio").style.display = 'none';
+        document.getElementById("navigationRadio").style.display = 'none';
+        
+    }
+}
+
+//Resets all boxes to default values for compact view
+function resetAllBoxes() {
+
+    var style = 'display: none; width:920px !important; top:370px !important; left:50px !important; position: absolute !important;'
+
+    document.getElementById("box1").setAttribute('style', style);
+    document.getElementById("box3").setAttribute('style', style);
+    document.getElementById("box4").setAttribute('style', style);
+    document.getElementById("box5").setAttribute('style', style);
+    document.getElementById("box6").setAttribute('style', style);
+    document.getElementById("box9").setAttribute('style', style);
+    document.getElementById("box10").setAttribute('style', style);
+    document.getElementById("buttonBox").setAttribute('style', style);
+
+    document.getElementById("pressuregraph").setAttribute('style', style);
+    document.getElementById("halfholebox").setAttribute('style', style);
+    
+    
+    style = 'display: none;  top:90px !important; left:00px !important; position: absolute !important;'
+    document.getElementById("middleControlBox").setAttribute('style', style);
+
+    
+    style = 'display: none;  top:370px !important; left:50px !important; position: absolute !important;'
+    document.getElementById("box2").setAttribute('style', style);
+
+    style = 'display: none; width:920px !important; top:120px !important; left:0px !important; position: absolute !important;'
+    document.getElementById("topControls").setAttribute('style', style);
+    document.getElementById("WARBL2customControls").setAttribute('style', style);
+
+    style = 'display: none; width:920px !important; top:276px !important; left:0px !important; position: absolute !important;'
+    document.getElementById("opticalCalibration").setAttribute('style', style);
+
+    style = 'display: none; width:920px !important; top:240px !important; left:0px !important; position: absolute !important;'
+    document.getElementById("WARBL2Settings").setAttribute('style', style);
+    
+
+    style = 'display: none; width:920px !important; top:450px !important; left:50px !important; position: absolute !important;'
+    document.getElementById("importexport").setAttribute('style', style);
+
+    document.getElementById("defaultInstrument").style.top = "90px";
+    
+}
+
+
+function ontopNavRadio(selection) {
+    resetAllBoxes();
+
+    selection = parseInt(selection);
+    var element = null;
+    
+    if (topNavBarElements[selection].isEnabled()) {
+        element = document.getElementById(topNavBarElements[selection].element);
+        if (topNavBarElements[selection].element == 'middleControlBox') {
+            document.getElementById("instrNav0").click();
+            oninstrNavRadio(0);
+        }
+    }
+    
+    if (element) {
+        element.style.display = 'block';
+    }
+}
+
+function oninstrNavRadio(selection) {
+    resetAllBoxes();
+    selection = parseInt(selection);
+    var element = null;
+    document.getElementById("middleControlBox").style.display = 'block';
+
+    if (instrNavBarElements[selection].isEnabled()) {
+        element = document.getElementById(instrNavBarElements[selection].element);
+        if (instrNavBarElements[selection].element == 'box6') { //Hides "back button"
+            document.getElementById('backPressureButton').style.display = 'none';
+        } else if (instrNavBarElements[selection].element == 'box10') {
+            document.getElementById('backIMUButton').style.display = 'none';
+        }
+
+    }
+
+    if (element) {
+        element.style.display = 'block';
+    }
+}
+
+//End of navigation helpers
 
 window.addEventListener('load', function () {
 
@@ -122,6 +378,8 @@ window.addEventListener('load', function () {
 
     // Clear the WARBL output port
     WARBLout = null;
+
+    initPage();
 
     updateCells(); // set selects and radio buttons to initial values and enabled/disabled states
 
@@ -2279,6 +2537,11 @@ function sendFingeringRadio(tab) { //change instruments, showing the correct tab
     }
     updateCells();
     updateCustom();
+    if (compactView) {
+        initPage();
+
+    }
+
 }
 
 
