@@ -50,9 +50,9 @@
          <object class = "info" data="img/bars.svg" type="image/svg+xml"></object>
          </a>
       </div>
-      <div class="pagewrapper">
+      <div class="pagewrapper" id="pagewrapper">
          <div id="topcontrolbox">
-            <div class="topheader noTouch">
+            <div class="topheader noTouch" id="topheader">
                <h1>
                   WARBL Configuration Tool
                   <button type="button" class="infocircle" onClick="modal(10)"><img  class = "info" src="img/info-circle.svg"></img></button>
@@ -67,39 +67,39 @@
                <p id="versionLabel" class="noTouch">WARBL firmware version:</p>
                <p id="version" class="noTouch">Unknown</p>
                <p id="current" class="noTouch">Your firmware is up to date.</p>
-               <button type="button" class="smallbutton noTouch openConsole" onClick="modal(18)">MIDI Console...</button>
-               <div class="tinyConsoleLabel noTouch">MIDI Note:</div>
-               <div class="tinyConsoleContainer">
+               <button type="button" class="smallbutton noTouch openConsole" id="openConsoleBtn" onClick="modal(18)">MIDI Console...</button>
+               <div class="tinyConsoleLabel noTouch" id="tinyConsoleLabel">MIDI Note:</div>
+               <div class="tinyConsoleContainer" id="tinyConsoleContainer">
                   <input class="tinyConsole noTouch" type="text" id="tinyConsole"/>
                </div>
             </div>
 
             <div class="topNavigationRadio" id="topNavigationRadio">
-               <div class="backgroundDiv"></div>
+               <div class="backgroundDiv" id="backgroundDiv"></div>
             </div>
 
 
             <div class="middleControlBox" id="middleControlBox">
                <div class="fingeringRadio" id="fingeringRadio">
-                  <div class="tab tab0">
+                  <div class="tab tab0" id="tab0">
                      <input type="radio" value="0" name="quality" id="fingering0" onChange="sendFingeringRadio(value)" checked=checked />
-                     <label for="fingering0">
+                     <label for="fingering0" id="fingeringLabelFor0">
                         <span><span></span></span>
                         <div class="fingeringLabelDiv" id="fingeringLabel1">Tin whistle/flute</div>
                         <div class="instrument" id=instrument1Label>Instrument 1:</div>
                      </label>
                   </div>
-                  <div class="tab tab1">
+                  <div class="tab tab1" id="tab1">
                      <input type="radio" value="1" name="quality" id="fingering1" onChange="sendFingeringRadio(value)" />
-                     <label for="fingering1">
+                     <label for="fingering1" id="fingeringLabelFor1">
                         <span><span></span></span>
                         <div class="fingeringLabelDiv" id="fingeringLabel2">Tin whistle/flute</div>
                         <div class="instrument" id=instrument2Label>Instrument 2:</div>
                      </label>
                   </div>
-                  <div class="tab tab2">
+                  <div class="tab tab2" id="tab2">
                      <input type="radio" value="2" name="quality" id="fingering2" onChange="sendFingeringRadio(value)" />
-                     <label for="fingering2">
+                     <label for="fingering2" id="fingeringLabelFor2">
                         <span><span></span></span>
                         <div class="fingeringLabelDiv" id="fingeringLabel3">Tin whistle/flute</div>
                         <div class="instrument" id=instrument3Label>Instrument 3:</div>
@@ -108,8 +108,8 @@
                </div>
                <div class="navigationRadio" id="navigationRadio">
                </div>
-               <div class="tabBorder"></div>
-               <div class="tabBorder1"></div>
+               <div class="tabBorder" id="tabBorder"></div>
+               <div class="tabBorder1" id="tabBorder1"></div>
                <div id="customControls">
                   <h2 class="controlboxtitle noTouch" id="customControlsHeader">
                      Custom Fingering Configuration
@@ -863,7 +863,7 @@
 
                      <button type="button" class="smallbutton noTouch halfHoleReset" id="halfHoleReset" onClick="halfHoleReset()">Defaults</button>
 
-                     <button type="button" class="smallbutton noTouch halfHoleOkay" onClick="halfHoleOkay()">OK</button>
+                     <button type="button" class="smallbutton noTouch halfHoleOkay" id="halfHoleOkay" onClick="halfHoleOkay()">OK</button>
                </div>
                <div class="smallcontrolbox" id="box5">
                   <h2 class="controlboxtitle noTouch">
@@ -1161,7 +1161,7 @@
                   <div class="slidecontainer6" id="pitchRegisterContainer">
                      <input type="range" min="2" max="5" value="2" class="ranger" id="pitchRegisterNumber" onChange="sendpitchRegisterNumber(value)" />
                   </div>
-                  <div class="jumpvalues jumpvalue17">
+                  <div class="jumpvalues jumpvalue17" id="jumpvalue17">
                      <p><span id="demo17"></span></p>
                   </div>
                </div>
@@ -1352,7 +1352,7 @@
                      Button Behavior
                      <button type="button" class="infocircle" onClick="modal(8)">  <img  class = "info" src="img/info-circle.svg"></img></button>
                   </h2>
-                  <div class="secretLabel noTouch">Use "secret" button commands</div>
+                  <div class="secretLabel noTouch" id="secretLabel">Use "secret" button commands</div>
                   <label class="switch" id="switch3">
                   <input type="checkbox" class="checkboxes" id="checkbox3" onChange="sendSecret(this.checked)" />
                   <span class="slider round"></span>
@@ -1698,8 +1698,8 @@
                      </div>
                   </div>
                   <div class="channelLabel noTouch">Channel<br />(1-16)</div>
-                  <div class="byte2Label noTouch">Byte 2<br />(0-127)</div>
-                  <div class="byte3Label noTouch">Byte 3<br />(0-127)</div>
+                  <div class="byte2Label noTouch" id="byte2Label">Byte 2<br />(0-127)</div>
+                  <div class="byte3Label noTouch" id="byte3Label">Byte 3<br />(0-127)</div>
                   <div class="channelInputContainer">
                      <input class="channelInput" type="text" onChange="sendChannel(0)" id="channel0" value="" />
                      <input class="channelInput" type="text" onChange="sendChannel(1)" id="channel1" value="" />
@@ -1746,7 +1746,7 @@
             </div>
          </div>
          <div class="controlbox" id="opticalCalibration">
-            <h2 class="controlboxtitle noTouch">
+            <h2 class="controlboxtitle noTouch" id="opticalCalibrationHeader">
                Optical Sensor Calibration
                <button type="button" class="infocircle" onClick="modal(9)">  <img  class = "info" src="img/info-circle.svg"></img></button>
             </h2>
@@ -1817,7 +1817,7 @@
             <div class="sensorvalue noTouch b9" id="v1">0</div>
          </div>
          <div class="WARBL2controlbox" id="WARBL2Settings">
-            <h2 class="controlboxtitle noTouch">
+            <h2 class="controlboxtitle noTouch" id="warbl2SettingsHeader">
                WARBL2 Settings
                <button type="button" class="infocircle" onClick="modal(23)">  <img  class = "info" src="img/info-circle.svg"></img></button>
             </h2>
@@ -1918,7 +1918,7 @@
 
             <button type="button" class="calibrateIMUbutton smallbutton noTouch" id="calibrateIMU" onClick="calibrateIMU()">Calibrate Gyro</button>
             <button type="button" class="centerYawbutton smallbutton noTouch" id="centerYaw" onClick="centerYaw()">Recenter Yaw</button>
-            <div class="hostLabel noTouch">Charge from USB hosts</div>
+            <div class="hostLabel noTouch" id="hostLabel">Charge from USB hosts</div>
             <label class="switch" id="switch19">
             <input type="checkbox" class="checkboxes" id="checkbox19" onChange="sendHost(this.checked)" checked=checked />
             <span class="slider round"></span>
@@ -1951,6 +1951,13 @@
                   <p><span id="poweroffValue"></span></p>
                </div>
             </div>
+         </div>
+         <div class="controlbox" id="midiMonitorBox">
+            <h2 class="controlboxtitle noTouch">
+              MIDI Monitor
+            </h2>
+            <button type="button" class="smallbutton noTouch clearConsole" onClick="clearConsole();">Clear Console</button>
+
          </div>
          <div id="importexport" class="importexportbox">
             <h2 class="importexportboxtitle noTouch">

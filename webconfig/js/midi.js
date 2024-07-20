@@ -115,10 +115,53 @@ window.onclick = function (event) {
 
 
 /*
-* Navigation helpers
+* Navigation helpers & Compact View functions
 */
-//Var to hold current page width, to be used for responsiveness
+//Are we using the new compact view? for now we append ?compact=1 to the url of the page to trigger it
+var compactView = false;
+
+//hold current page width, to be used for responsiveness
 var pageWidth = 1024;
+
+//Current zoom factor
+var zoomFactor = pageWidth/1024;
+
+
+//To wait for resize event to finish
+var resizeTimeOutFunctionId; 
+
+//This gets called upen window resizing by the user (after a delay)
+function onWindowResize() {
+    if (compactView) {
+        if (calculatePageWidth() != pageWidth) {
+            initPage();
+        }
+    }
+ }
+
+//Calculates current page width, in any case between 720 and 1024
+function calculatePageWidth() {
+    var width = 1024;
+    if (window.innerWidth <= width+60) {
+        width = window.innerWidth - 60; //Margins
+        if (width < 720) width = 720;
+    } 
+    return width;
+ }
+
+ //To capture user windows resizing
+ window.addEventListener("resize", function() { 
+        
+    // clearTimeOut() resets the setTimeOut() timer 
+    // due to this the function in setTimeout() is  
+    // fired after we are done resizing 
+    clearTimeout(resizeTimeOutFunctionId); 
+    
+    // setTimeout returns the numeric ID which is used by 
+    // clearTimeOut to reset the timer 
+    resizeTimeOutFunctionId = setTimeout(onWindowResize, 300); 
+});
+
 
 /* Class for each nav bar item
 element: the id of the box to show when selected
@@ -143,25 +186,23 @@ class NavBarItem {
     /* This generates a radio element for navbar
     index: radio group index
     width: element (label) width
-    row: nav bar row (for top parameter)
+    row: nav bar row (for top style parameter)
     rowIndex: index within the row
     */
     getElement(index, width, row, rowIndex) {
 
         const element = document.createElement("div");
         element.classList.add(this.group + 'tab');
-        // element.classList.add('topNavtab' + index);
-        var elStyle = 'position: absolute; top: '+ row*50 + 'px; left: ' + width*rowIndex + 'px;'
+
+        var elStyle = 'position: absolute; top: '+ row*42 + 'px; left: ' + width*rowIndex + 'px;'
         element.setAttribute("style", elStyle);
 
         const inputEl = document.createElement("input");
-
         inputEl.type = 'radio';
         inputEl.value = index;
         inputEl.name = this.group;
         inputEl.id = this.group + index;
         inputEl.setAttribute("onChange", 'on' + this.group + 'Radio(value);');
-
         element.appendChild(inputEl);
 
         const labelEl = document.createElement("label");
@@ -187,39 +228,69 @@ class NavBarItem {
     }
   }
 
-//Arrays containing nav bar elements
-var topNavBarElements = [];
-var instrNavBarElements = [];
+
+var topNavBarElements = []; //Array containing top nav bar elements
+var topNavBarRows = 0; //Number of rows in top nav bar
+var currentTopNavElement = ""; //currently selected top nav bar element
+
+
+var instrNavBarElements = []; //Array containing instrument nav bar elements
+var instrNavBarRows = 0; //Number of rows in instr nav bar
+var currentInstrElement = ""; //currently selected top nav bar element
 
 //Prepares nav bars
 function initNavBars() {
 
-    //Top nav
-    topNavBarElements.push(new NavBarItem('middleControlBox', 'Home', 'topNav', true, 0));
-    topNavBarElements.push(new NavBarItem('opticalCalibration', 'Calibration', 'topNav', true, 0));
-    topNavBarElements.push(new NavBarItem('WARBL2Settings', 'WARBL2', 'topNav', true, 40));
+    //The two nav bars
+    var topNavigationRadio = document.getElementById("topNavigationRadio");
+    var navigationRadio = document.getElementById("navigationRadio");
+    
+    //delete existing tabs
+    topNavBarElements = [];
+    while(topNavigationRadio.childNodes.length > 0) {
+        topNavigationRadio.childNodes[0].remove();
+    }
 
+    //Creates and add a background element to the nav bar
+    const element = document.createElement("div");
+    element.id = 'backgroundDiv';
+    element.classList.add('backgroundDiv');
+    topNavigationRadio.appendChild(element);
+
+    instrNavBarElements = [];
+    while(navigationRadio.childNodes.length > 0) {
+        navigationRadio.childNodes[0].remove();
+    }
+
+    //Top nav Elements
+    topNavBarElements.push(new NavBarItem('middleControlBox', 'Instruments', 'topNav', true, 0));
+    topNavBarElements.push(new NavBarItem('WARBL2Settings', 'Settings', 'topNav', true, 4.0));
+    topNavBarElements.push(new NavBarItem('opticalCalibration', 'Calibration', 'topNav', true, 0));
+    topNavBarElements.push(new NavBarItem('midiMonitorBox', 'MIDI Monitor', 'topNav', true, 4.0));
+
+    
     var elCount = 0;
     for (var i = 0; i < topNavBarElements.length; i++) {
         if (topNavBarElements[i].isEnabled()) elCount++;
     }
 
-    var elWidth = pageWidth/elCount;
+    var elWidth = pageWidth/elCount; //Width of the tab
 
     for (var i = 0; i < elCount; i++) {
         if (topNavBarElements[i].isEnabled()) {
-            var divEl = topNavBarElements[i].getElement(i, elWidth, 0, i);
-            document.getElementById("topNavigationRadio").appendChild(divEl);
+            var divEl = topNavBarElements[i].getElement(i, elWidth, 0, i); //We have just one row here, for now
+            topNavigationRadio.appendChild(divEl);
         }
     }
 
 
-    //Instr nav
+    //Instr nav elements
     instrNavBarElements.push(new NavBarItem('topControls', 'Main', 'instrNav', true, 0));
     instrNavBarElements.push(new NavBarItem('box5', 'Vibrato and Slide', 'instrNav', true, 0));
     instrNavBarElements.push(new NavBarItem('box1', 'Trigger and Register', 'instrNav', true, 0));
-    instrNavBarElements.push(new NavBarItem('box6', 'Pressure', 'instrNav', true,40));
-    instrNavBarElements.push(new NavBarItem('box10', 'IMU', 'instrNav', true, 40));
+    instrNavBarElements.push(new NavBarItem('halfholebox', 'Half holing', 'instrNav', true, 4.2));
+    instrNavBarElements.push(new NavBarItem('box6', 'Pressure', 'instrNav', true, 4.0));
+    instrNavBarElements.push(new NavBarItem('box10', 'IMU', 'instrNav', true, 4.0));
     instrNavBarElements.push(new NavBarItem('box3', 'Drones', 'instrNav', true, 0));
     instrNavBarElements.push(new NavBarItem('buttonBox', 'Buttons', 'instrNav', true, 0));
     instrNavBarElements.push(new NavBarItem('importexport', 'Import/Export', 'instrNav', true, 0));
@@ -229,13 +300,16 @@ function initNavBars() {
         if (instrNavBarElements[i].isEnabled()) elCount++;
     }
 
-    //This is dynamic
-    elWidth = (pageWidth -100)/elCount;
+    //This is dynamic and with multiple rows
+    elWidth = (pageWidth - 100)/elCount; //Takes into account margins
+
     var splitPoint = 0;
-    if (elWidth < 184) {
-        splitPoint = Math.ceil(elCount/ Math.ceil(elCount / ((pageWidth -100) / 184)));
-        elWidth =  (pageWidth -100)/splitPoint;
+    if (elWidth < 184) { //Minimum width
+        splitPoint = Math.ceil(elCount/ Math.ceil(elCount / ((pageWidth - 100) / 184)));
+        elWidth =  (pageWidth - 100)/splitPoint;
     }
+
+    //Calculates rows and  index within the row
     var row = -1;
     var index = -1;
     for (var i = 0; i < elCount; i++) {
@@ -249,87 +323,227 @@ function initNavBars() {
             document.getElementById("navigationRadio").appendChild(divEl);
         }
     }
+    instrNavBarRows = row+1;
     
 }
 
-//Are we using the new compactview? for now we append ?compact=1 to the url of the page
-var compactView = false;
-
 //Various initializations
-function initPage() {
+function initPage() {	
 
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop),
-      });	
+    if (compactView) {
 
-    if (params.compact) {
-        compactView = true;
+        var width = calculatePageWidth();
+        if (width != pageWidth) {
+            pageWidth = width;
+        }
 
-        if (topNavBarElements.length == 0) initNavBars();
+        currentInstrElement = "";
+        currentTopNavElement = "";
 
-        // document.getElementById("topcontrolbox").setAttribute('style', 'height:860px !important;');
+        initNavBars();
+
         document.getElementById('topcontrolbox').style.backgroundColor = "transparent";
-
         document.getElementById('middleControlBox').style.top = "80px";
 
-        document.getElementById("topNav0").click();
+        document.getElementById("topNav0").click(); //Starts with first top nav tab
         document.getElementById("topNav0").dispatchEvent(new Event('change'));
         
-        document.getElementById("instrNav0").click();
+        document.getElementById("instrNav0").click(); //Starts with first instr nav tab
         oninstrNavRadio(0);
 
+        //Optional
+        document.getElementById("myTopnav").style.display = "none";
+        document.getElementById("topLogo").style.display = "none";
 
     } else {
+        //Hides new elements if not in compactView
         document.getElementById("topNavigationRadio").style.display = 'none';
         document.getElementById("navigationRadio").style.display = 'none';
-        
+        document.getElementById("midiMonitorBox").style.display = 'none';
     }
 }
 
-//Resets all boxes to default values for compact view
+//Resets all boxes and some element to default style values for compact view
 function resetAllBoxes() {
 
-    var style = 'display: none; width:920px !important; top:370px !important; left:50px !important; position: absolute !important;'
+    if (compactView) {
+        zoomFactor = pageWidth/1024;
 
-    document.getElementById("box1").setAttribute('style', style);
-    document.getElementById("box3").setAttribute('style', style);
-    document.getElementById("box4").setAttribute('style', style);
-    document.getElementById("box5").setAttribute('style', style);
-    document.getElementById("box6").setAttribute('style', style);
-    document.getElementById("box9").setAttribute('style', style);
-    document.getElementById("box10").setAttribute('style', style);
-    document.getElementById("buttonBox").setAttribute('style', style);
+        //Top elements
+        var style = 'zoom:' + zoomFactor + '!important; height:60px !important;';
+        document.getElementById("topheader").setAttribute('style', style);
 
-    document.getElementById("pressuregraph").setAttribute('style', style);
-    document.getElementById("halfholebox").setAttribute('style', style);
-    
-    
-    style = 'display: none;  top:90px !important; left:00px !important; position: absolute !important;'
-    document.getElementById("middleControlBox").setAttribute('style', style);
+        style = 'width:' + pageWidth + 'px !important;';
+        document.getElementById("pagewrapper").setAttribute('style', style);
+        document.getElementById("tabBorder").setAttribute('style', style);
+        document.getElementById("tabBorder1").setAttribute('style', style);
 
-    
-    style = 'display: none;  top:370px !important; left:50px !important; position: absolute !important;'
-    document.getElementById("box2").setAttribute('style', style);
+        style = 'width:' + pageWidth + 'px !important; height:0px !important';
+        document.getElementById("topcontrolbox").setAttribute('style', style);
 
-    style = 'display: none; width:920px !important; top:120px !important; left:0px !important; position: absolute !important;'
-    document.getElementById("topControls").setAttribute('style', style);
-    document.getElementById("WARBL2customControls").setAttribute('style', style);
+        let bkgHeight = 600 + 50*instrNavBarRows;
+        style = 'top: 314px !important; width:' + pageWidth + 'px !important; height:' + bkgHeight + 'px !important';
+        document.getElementById("backgroundDiv").setAttribute('style', style);
 
-    style = 'display: none; width:920px !important; top:276px !important; left:0px !important; position: absolute !important;'
-    document.getElementById("opticalCalibration").setAttribute('style', style);
+        
+        //Various boxes
+        var elWidth = pageWidth - 100;
+        var instrBoxTop = 240 + instrNavBarRows*50;
 
-    style = 'display: none; width:920px !important; top:240px !important; left:0px !important; position: absolute !important;'
-    document.getElementById("WARBL2Settings").setAttribute('style', style);
-    
+        //Instrument Checkboxes
+        var instrumentLabelWidth = elWidth/3;
 
-    style = 'display: none; width:920px !important; top:450px !important; left:50px !important; position: absolute !important;'
-    document.getElementById("importexport").setAttribute('style', style);
+        style = 'width:' + instrumentLabelWidth + 'px !important;';
+        document.getElementById("fingeringLabelFor0").setAttribute('style', style);
+        document.getElementById("fingeringLabelFor1").setAttribute('style', style);
+        document.getElementById("fingeringLabelFor2").setAttribute('style', style);
 
-    document.getElementById("defaultInstrument").style.top = "90px";
+        //Mode 0
+        var instrumentLabelLeft = 0;
+        style = 'left:' + instrumentLabelLeft + 'px !important;';
+        document.getElementById("tab0").setAttribute('style', style);
+
+        //Mode 1
+        instrumentLabelLeft += instrumentLabelWidth;
+        style = 'left:' + instrumentLabelLeft + 'px !important;';
+        document.getElementById("tab1").setAttribute('style', style);
+
+        //Mode 2
+        instrumentLabelLeft += instrumentLabelWidth;
+        style = 'left:' + instrumentLabelLeft + 'px !important;';
+        document.getElementById("tab2").setAttribute('style', style);
+        
+        //Default button
+        var setDefaultButtonLeft = ((instrumentLabelWidth - 160*zoomFactor)/2 + instrument*instrumentLabelWidth + 50)/zoomFactor;
+        var setDefaultButtonVisibility =  (defaultInstr != instrument) ? 'visible' : 'hidden';
+        var setDefaultButtonTop = (210*zoomFactor - instrNavBarRows*50);
+        style = 'left:' + setDefaultButtonLeft  + 'px !important; top: ' + setDefaultButtonTop + 'px !important; visibility: ' + setDefaultButtonVisibility + ';';
+        document.getElementById("defaultInstrument").setAttribute('style', style);
+
+
+        //Boxes
+        style = 'display: none; width:' + elWidth + 'px !important; top:' + instrBoxTop + 'px !important; left:50px !important; height:430px !important; position: absolute !important;'
+
+        document.getElementById("box1").setAttribute('style', style);
+        document.getElementById("box3").setAttribute('style', style);
+        document.getElementById("box4").setAttribute('style', style);
+        document.getElementById("box5").setAttribute('style', style);
+        document.getElementById("box6").setAttribute('style', style);
+        document.getElementById("box7").setAttribute('style', style);
+        document.getElementById("box9").setAttribute('style', style);
+        document.getElementById("box10").setAttribute('style', style);
+        document.getElementById("box11").setAttribute('style', style);
+        document.getElementById("box12").setAttribute('style', style);
+        document.getElementById("pressuregraph").setAttribute('style', style);
+        document.getElementById("halfholebox").setAttribute('style', style);
+        
+        //Special cases
+        style = 'display: none; width:' + elWidth + 'px !important; zoom:' + zoomFactor + ' !important; top:' + instrBoxTop/zoomFactor + 'px !important; left:50px !important; height:430px !important; position: absolute !important;'
+        document.getElementById("buttonBox").setAttribute('style', style);
+
+        style = 'display: none; width:' + elWidth + 'px !important; top:-20px !important; left:0px !important; position: absolute !important;'
+        document.getElementById("middleControlBox").setAttribute('style', style);
+        
+        style = 'display: none;  top:' + instrBoxTop + 'px !important; left:50px !important; position: absolute !important;'
+        document.getElementById("box2").setAttribute('style', style);
+
+        style = 'display: none; zoom:' + zoomFactor + ' !important; top:' +186/zoomFactor + 'px !important; left:0px !important; position: absolute !important;'
+        document.getElementById("opticalCalibration").setAttribute('style', style);
+
+        style = 'display: none; zoom:' + zoomFactor + ' !important; top:' + 150/zoomFactor + 'px !important; left:0px !important; position: absolute !important;'
+        document.getElementById("WARBL2Settings").setAttribute('style', style);
+
+
+        //Headers
+        style = 'width:' + elWidth/zoomFactor + 'px !important; position: absolute !important;'
+        document.getElementById("opticalCalibrationHeader").setAttribute('style', style);
+        document.getElementById("warbl2SettingsHeader").setAttribute('style', style);
+        
+        //Labels
+        document.getElementById("hostLabel").style.width = '150px';
+        document.getElementById("autoCalibLabel").style.width = '150px';
+        document.getElementById("connLabel").style.width = '150px';
+        document.getElementById("voltageLabel").style.width = '100px';
+        document.getElementById("secretLabel").style.width = '194px';
+        document.getElementById("byte2Label").style.width = '100px';
+        document.getElementById("byte2Label").style.left = '733px';
+
+        document.getElementById("byte3Label").style.left = '813px';
+        document.getElementById("byte3Label").style.width = '100px';
+        
+        
+        //MIDI monitor
+        document.getElementById("openConsoleBtn").style.display = 'none';
+        style = 'display: none; width:' + elWidth + 'px !important; top:' + 180 + 'px !important; left:50px !important; height:530px !important; position: absolute !important;'
+        document.getElementById("midiMonitorBox").setAttribute('style', style);
+
+        document.getElementById("midiMonitorBox").appendChild(document.getElementById('tinyConsoleLabel'));
+        style = 'top: 20px !important; left:10px !important;';
+        document.getElementById('tinyConsoleLabel').setAttribute('style', style);
+
+        document.getElementById("midiMonitorBox").appendChild(document.getElementById('tinyConsoleContainer'));
+        style = 'top: 14px !important; left:100px !important;';
+        document.getElementById('tinyConsoleContainer').setAttribute('style', style);
+
+        document.getElementById("midiMonitorBox").appendChild(document.getElementById('console'));
+        document.getElementById("midiMonitorBox").appendChild(document.getElementById('console'));
+        style = 'background-color: white; width:' + (elWidth-100) + 'px !important; top:' + 80*zoomFactor + 'px !important; left:50px !important; height:430px !important; position: absolute !important;'
+        document.getElementById("console").setAttribute('style', style);
+
+        style = 'display: none; width:' + elWidth + 'px !important; top:' + instrBoxTop + 'px !important; left:50px !important; height:480px !important; position: absolute !important;'
+        document.getElementById("importexport").setAttribute('style', style);
+        document.getElementById("importexport").classList.add("smallcontrolbox");
+
+        instrBoxTop = instrNavBarRows*50/zoomFactor/zoomFactor;
+        style = 'display: none; zoom:' + zoomFactor + ' !important; top:' + instrBoxTop + 'px !important; left:0px !important; position: absolute !important;'
+        document.getElementById("topControls").setAttribute('style', style);
+        document.getElementById("WARBL2customControls").setAttribute('style', style);
+
+ 
+        //Sliders
+        style = 'width:50% !important; left:0px !important;  position: absolute !important;'
+        document.getElementById("shakeDepth").setAttribute('style', style);
+
+        style = 'width:30% !important; left:230px !important;  position: absolute !important;'
+        document.getElementById("slider").setAttribute('style', style);
+        document.getElementById("slider2").setAttribute('style', style);
+        document.getElementById("slider4").setAttribute('style', style);
+        document.getElementById("slider5").setAttribute('style', style);
+        document.getElementById("slider6").setAttribute('style', style);
+        document.getElementById("pitchRegisterContainer").setAttribute('style', style);
+
+        document.getElementById("jumpvalue17").style.left = "520px";
+
+        
+        //Hides a few elements:
+        document.getElementById('backPressureButton').style.display = 'none';
+        document.getElementById('backIMUButton').style.display = 'none';
+        document.getElementById('halfHolePrefsButton').style.display = 'none';
+        document.getElementById('halfHoleOkay').style.display = 'none';
+
+        //Moving stuff around
+        var otherCalibrationTop = 360;
+        document.getElementById("opticalCalibration").appendChild(document.getElementById('calibrateIMU'));
+        style = 'top: ' + otherCalibrationTop + 'px !important; left:100px !important;';
+        document.getElementById('calibrateIMU').setAttribute('style', style);
+        
+        document.getElementById("opticalCalibration").appendChild(document.getElementById('centerYaw'));
+        style = 'top: ' + otherCalibrationTop + 'px !important; left:300px !important;';
+        document.getElementById('centerYaw').setAttribute('style', style);
+
+        document.getElementById("opticalCalibration").appendChild(document.getElementById('autoCalibLabel'));
+        style = 'top: ' + otherCalibrationTop + 'px !important; left:500px !important; width: 150px !important;';
+        document.getElementById('autoCalibLabel').setAttribute('style', style);
+
+        document.getElementById("opticalCalibration").appendChild(document.getElementById('switch28'));
+        style = 'top: ' + otherCalibrationTop + 'px !important; left:660px !important;';
+        document.getElementById('switch28').setAttribute('style', style);
+        
+    }
     
 }
 
-
+//Manages click on a top nav tab
 function ontopNavRadio(selection) {
     resetAllBoxes();
 
@@ -345,10 +559,12 @@ function ontopNavRadio(selection) {
     }
     
     if (element) {
+        currentTopNavElement = topNavBarElements[selection].element
         element.style.display = 'block';
     }
 }
 
+//Manages click on a instr nav tab
 function oninstrNavRadio(selection) {
     resetAllBoxes();
     selection = parseInt(selection);
@@ -357,19 +573,34 @@ function oninstrNavRadio(selection) {
 
     if (instrNavBarElements[selection].isEnabled()) {
         element = document.getElementById(instrNavBarElements[selection].element);
-        if (instrNavBarElements[selection].element == 'box6') { //Hides "back button"
-            document.getElementById('backPressureButton').style.display = 'none';
-        } else if (instrNavBarElements[selection].element == 'box10') {
-            document.getElementById('backIMUButton').style.display = 'none';
-        }
-
+        if (instrNavBarElements[selection].element == 'halfholebox') { 
+            halfHoleAdvanced(false);
+        } 
     }
 
     if (element) {
+        currentInstrElement = instrNavBarElements[selection].element;
         element.style.display = 'block';
     }
 }
 
+
+//Closes all open child boxes and refresh views
+function resetViews() {
+    advancedOkay(); //turn off the advanced tab	
+    pressureOkay();
+    updateCells();
+    advancedOkayPB();
+    okayCCmap();
+    okayIMUmap();
+    okayPitchRegistermap();
+    okayOverride();
+    backIMU();
+    backPressure();
+    handleDefault();
+    customFingeringOkay();
+    halfHoleOkay();
+}
 //End of navigation helpers
 
 window.addEventListener('load', function () {
@@ -378,6 +609,16 @@ window.addEventListener('load', function () {
 
     // Clear the WARBL output port
     WARBLout = null;
+
+
+    //Searches for query string parameters in URL
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+      });	
+
+    if (params.compact) {
+        compactView = true; //Activate compact view
+    }
 
     initPage();
 
@@ -985,14 +1226,31 @@ function WARBL_Receive(event) {
 
 
     if (!(e == "CC" && (parseFloat(data0 & 0x0f) == MIDI_CONFIG_TOOL_CHANNEL-1))) { //as long as it's not a CC on channel 7, show in the MIDI console.
-        consoleEntries++;
-        if (consoleEntries < 301) {
-            document.getElementById("console").innerHTML += (e + " " + ((data0 & 0x0f) + 1) + " " + data1 + " " + f);
-            document.getElementById("console").innerHTML += "<br>";
+       
+        if (compactView && currentTopNavElement == "midiMonitorBox") {
+            let consoleEl = document.getElementById("console");
+            const textSpan = document.createElement("span");
+            textSpan.innerHTML = (e + " " + ((data0 & 0x0f) + 1) + " " + data1 + " " + f);
+            consoleEl.append(textSpan);
+            consoleEl.append( document.createElement("br"));
+
+            if (consoleEl.childElementCount > 600){
+                consoleEl.firstChild.remove(); //Span
+                consoleEl.firstChild.remove(); //br
+              }
+
+        } else {
+            consoleEntries++;
+            if (consoleEntries < 301) {
+                document.getElementById("console").innerHTML += (e + " " + ((data0 & 0x0f) + 1) + " " + data1 + " " + f);
+                document.getElementById("console").innerHTML += "<br>";
+            }
+            else if (consoleEntries == 301) {
+                document.getElementById("console").innerHTML += "max lines reached";
+            }
         }
-        else if (consoleEntries == 301) {
-            document.getElementById("console").innerHTML += "max lines reached";
-        }
+
+
         var elem2 = document.getElementById("console");
         elem2.scrollTop = elem2.scrollHeight;
     }
@@ -1126,19 +1384,20 @@ function WARBL_Receive(event) {
                         document.getElementById("key0").style.display = "block";
                         document.getElementById("key1").style.display = "none";
                         document.getElementById("key2").style.display = "none";
-                        advancedOkay(); //turn off the advanced tab	
-                        pressureOkay();
-                        updateCells();
-                        advancedOkayPB();
-                        okayCCmap();
-                        okayIMUmap();
-						okayPitchRegistermap();
-                        okayOverride();
-                        backIMU();
-                        backPressure();
-                        handleDefault();
-                        customFingeringOkay();
-                        halfHoleOkay();
+                        resetViews();
+                        // advancedOkay(); //turn off the advanced tab	
+                        // pressureOkay();
+                        // updateCells();
+                        // advancedOkayPB();
+                        // okayCCmap();
+                        // okayIMUmap();
+                        // okayPitchRegistermap();
+                        // okayOverride();
+                        // backIMU();
+                        // backPressure();
+                        // handleDefault();
+                        // customFingeringOkay();
+                        // halfHoleOkay();
                     }
                     if (data2 == MIDI_CURRENT_MODE_START +1) {
                         document.getElementById("fingering1").checked = true;
@@ -1149,19 +1408,20 @@ function WARBL_Receive(event) {
                         document.getElementById("key0").style.display = "none";
                         document.getElementById("key1").style.display = "block";
                         document.getElementById("key2").style.display = "none";
-                        advancedOkay(); //turn off the advanced tab	
-                        pressureOkay();
-                        updateCells();
-                        advancedOkayPB();
-                        okayCCmap();
-                        okayIMUmap();
-						okayPitchRegistermap();
-                        okayOverride();
-                        backIMU();
-                        backPressure();
-                        handleDefault();
-                        customFingeringOkay();
-                        halfHoleOkay();
+                        resetViews();
+                        // advancedOkay(); //turn off the advanced tab	
+                        // pressureOkay();
+                        // updateCells();
+                        // advancedOkayPB();
+                        // okayCCmap();
+                        // okayIMUmap();
+                        // okayPitchRegistermap();
+                        // okayOverride();
+                        // backIMU();
+                        // backPressure();
+                        // handleDefault();
+                        // customFingeringOkay();
+                        // halfHoleOkay();
                     }
                     if (data2 == MIDI_CURRENT_MODE_START +2) {
                         document.getElementById("fingering2").checked = true;
@@ -1172,19 +1432,20 @@ function WARBL_Receive(event) {
                         document.getElementById("key0").style.display = "none";
                         document.getElementById("key1").style.display = "none";
                         document.getElementById("key2").style.display = "block";
-                        advancedOkay(); //turn off the advanced tab	
-                        pressureOkay();
-                        updateCells();
-                        advancedOkayPB();
-                        okayCCmap();
-                        okayIMUmap();
-						okayPitchRegistermap();
-                        okayOverride();
-                        backIMU();
-                        backPressure();
-                        handleDefault();
-                        customFingeringOkay();
-                        halfHoleOkay();
+                        resetViews();
+                        // advancedOkay(); //turn off the advanced tab	
+                        // pressureOkay();
+                        // updateCells();
+                        // advancedOkayPB();
+                        // okayCCmap();
+                        // okayIMUmap();
+                        // okayPitchRegistermap();
+                        // okayOverride();
+                        // backIMU();
+                        // backPressure();
+                        // handleDefault();
+                        // customFingeringOkay();
+                        // halfHoleOkay();
                     }
 
                     // if (data2 == MIDI_DEFAULT_MODE_START) { //receive and handle default instrument settings
@@ -1789,10 +2050,7 @@ function WARBL_Receive(event) {
 					
 						document.getElementById("switchDoubleClick").style.display = "none";
 						document.getElementById("doubleClickLabel").style.display = "none";
-
                         document.getElementById("halfHolePrefsButton").style.display = "none";
-
-						
 					}
 					
 
@@ -1892,7 +2150,7 @@ function WARBL_Receive(event) {
                         }
 
 
-                        document.getElementById("WARBL2Settings").style.display = "block"; //hide the WARBL2 settings			
+                        if (!compactView) document.getElementById("WARBL2Settings").style.display = "block"; //hide the WARBL2 settings			
                         document.getElementById("bellSensor").style.display = "none"; //show the bell sensor drawing
                         document.getElementById("dot0").style.left = "870px"; //move bell sensor stuff over
                         document.getElementById("1").style.left = "870px";
@@ -2465,14 +2723,16 @@ function handleDefault() { //display correct default instrument and "set default
         if (defaultInstr != instrument) {
             document.getElementById("defaultInstrument").style.visibility = "visible";
 
-            if (instrument == 0) {
-                document.getElementById("defaultInstrument").style.left = "130px";
-            }
-            if (instrument == 1) {
-                document.getElementById("defaultInstrument").style.left = "430px";
-            }
-            if (instrument == 2) {
-                document.getElementById("defaultInstrument").style.left = "730px";
+            if (!compactView) {
+                if (instrument == 0) {
+                    document.getElementById("defaultInstrument").style.left = "130px";
+                }
+                if (instrument == 1) {
+                    document.getElementById("defaultInstrument").style.left = "430px";
+                }
+                if (instrument == 2) {
+                    document.getElementById("defaultInstrument").style.left = "730px";
+                }
             }
         } else {
             document.getElementById("defaultInstrument").style.visibility = "hidden";
@@ -2493,17 +2753,19 @@ function sendFingeringRadio(tab) { //change instruments, showing the correct tab
 
     instrument = tab;
     updateCustom();
-    advancedOkay(); //turn off the advanced tab
-    pressureOkay();
-    okayCCmap();
-    okayIMUmap();
-	okayPitchRegistermap();
-    okayOverride();
-    backIMU();
-    backPressure();
-    handleDefault(); //display correct default instrument and "set default" buttons	
-    customFingeringOkay();
-    halfHoleOkay();
+
+    resetViews();
+    // advancedOkay(); //turn off the advanced tab
+    // pressureOkay();
+    // okayCCmap();
+    // okayIMUmap();
+    // okayPitchRegistermap();
+    // okayOverride();
+    // backIMU();
+    // backPressure();
+    // handleDefault(); //display correct default instrument and "set default" buttons	
+    // customFingeringOkay();
+    // halfHoleOkay();
 
     if (tab == 0) {
         document.getElementById("instrument0").style.display = "block";
@@ -2537,9 +2799,10 @@ function sendFingeringRadio(tab) { //change instruments, showing the correct tab
     }
     updateCells();
     updateCustom();
-    if (compactView) {
-        initPage();
 
+    if (compactView) {
+        document.getElementById("instrNav0").click();
+        oninstrNavRadio(0);
     }
 
 }
@@ -3239,7 +3502,7 @@ function advanced() {
 
 function advancedOkay() {
     document.getElementById("box2").style.display = "none";
-    document.getElementById("box1").style.display = "block";
+    if (!compactView || currentInstrElement == "box1") document.getElementById("box1").style.display = "block";
 }
 
 function advancedPB() {
@@ -3264,7 +3527,7 @@ function mapIMU() {
 function backPressure() {
     if (version > 3.9 || version == "Unknown") {
         document.getElementById("box6").style.display = "none";
-        document.getElementById("box9").style.display = "block";
+        if (!compactView || currentInstrElement == "box9") document.getElementById("box9").style.display = "block";
     }
 }
 
@@ -3273,7 +3536,7 @@ function backIMU() {
 
     document.getElementById("box10").style.display = "none";
     if (version > 3.9 || version == "Unknown") {
-        document.getElementById("box9").style.display = "block";
+        if (!compactView || currentInstrElement == "box9") document.getElementById("box9").style.display = "block";
     }
 }
 
@@ -3293,13 +3556,13 @@ function overRideExpression() {
 
 function okayOverride() {
     document.getElementById("box8").style.display = "none";
-    document.getElementById("box6").style.display = "block";
+    if (!compactView || currentInstrElement == "box6") document.getElementById("box6").style.display = "block";
 }
 
 
 function advancedOkayPB() {
     document.getElementById("box4").style.display = "none";
-    document.getElementById("box5").style.display = "block";
+    if (!compactView || currentInstrElement == "box5") document.getElementById("box5").style.display = "block";
 }
 
 function configureCustomFingering() {
@@ -3334,20 +3597,24 @@ function configureCustomFingering() {
 function customFingeringOkay() {
     document.getElementById("customControls").style.display = "none";
     document.getElementById("WARBL2customControls").style.display = "none";
-    document.getElementById("topControls").style.display = "block";
-    document.getElementById("box1").style.top = SMALLCONTROLBOX_1_TOP;
-    document.getElementById("box2").style.top = SMALLCONTROLBOX_1_TOP;
-    document.getElementById("box4").style.top = SMALLCONTROLBOX_1_TOP;
-    document.getElementById("box5").style.top = SMALLCONTROLBOX_1_TOP;
-    document.getElementById("pressuregraph").style.top = SMALLCONTROLBOX_1_TOP;
-    document.getElementById("box3").style.top = SMALLCONTROLBOX_2_TOP;
-    document.getElementById("box6").style.top = SMALLCONTROLBOX_2_TOP;
-    document.getElementById("box9").style.top = SMALLCONTROLBOX_2_TOP;
-    document.getElementById("box10").style.top = SMALLCONTROLBOX_2_TOP;
-    document.getElementById("box7").style.top = SMALLCONTROLBOX_2_TOP;
-    document.getElementById("box8").style.top = SMALLCONTROLBOX_2_TOP;
-    document.getElementById("buttonBox").style.top =BUTTONBOX_TOP;
-    document.getElementById("topcontrolbox").style.height = TOPCONTROLBOX_TOP;
+
+    if (!compactView || currentInstrElement == "topControls") document.getElementById("topControls").style.display = "block";
+
+    if (!compactView) {
+        document.getElementById("box1").style.top = SMALLCONTROLBOX_1_TOP;
+        document.getElementById("box2").style.top = SMALLCONTROLBOX_1_TOP;
+        document.getElementById("box4").style.top = SMALLCONTROLBOX_1_TOP;
+        document.getElementById("box5").style.top = SMALLCONTROLBOX_1_TOP;
+        document.getElementById("pressuregraph").style.top = SMALLCONTROLBOX_1_TOP;
+        document.getElementById("box3").style.top = SMALLCONTROLBOX_2_TOP;
+        document.getElementById("box6").style.top = SMALLCONTROLBOX_2_TOP;
+        document.getElementById("box9").style.top = SMALLCONTROLBOX_2_TOP;
+        document.getElementById("box10").style.top = SMALLCONTROLBOX_2_TOP;
+        document.getElementById("box7").style.top = SMALLCONTROLBOX_2_TOP;
+        document.getElementById("box8").style.top = SMALLCONTROLBOX_2_TOP;
+        document.getElementById("buttonBox").style.top =BUTTONBOX_TOP;
+        document.getElementById("topcontrolbox").style.height = TOPCONTROLBOX_TOP;
+    }
     document.getElementById("customFingeringFill").value = "12";
 }
 
@@ -3417,7 +3684,9 @@ function mapPoly() {
 function okayCCmap() {
     mapSelection = 4;
     document.getElementById("box7").style.display = "none";
-    document.getElementById("box6").style.display = "block";
+
+    if (!compactView || currentInstrElement == "box6") document.getElementById("box6").style.display = "block";
+
     document.getElementById("pressureChannel").style.visibility = "hidden";
     document.getElementById("pressureCC").style.visibility = "hidden";
     document.getElementById("expressionChannel").style.visibility = "hidden";
@@ -3497,13 +3766,13 @@ function okayIMUmap() {
     document.getElementById("YawCenterControls").style.display = "none";
     document.getElementById("IMUMappingControls").style.top = "-170px";
     document.getElementById("box11").style.display = "none";
-    document.getElementById("box10").style.display = "block";
+    if (!compactView || currentInstrElement == "box10") document.getElementById("box10").style.display = "block";
 }
 
 
 function okayPitchRegistermap() {
     document.getElementById("box12").style.display = "none";
-    document.getElementById("box10").style.display = "block";
+    if (!compactView || currentInstrElement == "box10") document.getElementById("box10").style.display = "block";
 }
 
 
@@ -3555,7 +3824,7 @@ function pressureOkay() {
 
     // Hide the pressure
     document.getElementById("pressuregraph").style.display = "none";
-    document.getElementById("box1").style.display = "block";
+    if (!compactView || currentInstrElement == "box1") document.getElementById("box1").style.display = "block";
 }
 
 function halfHole() {
@@ -3571,8 +3840,10 @@ function halfHole() {
 function halfHoleOkay() {
 
     // Hide Half hole prefs box
-    document.getElementById("halfholebox").style.display = "none";
-    document.getElementById("box1").style.display = "block";
+    if (!compactView) {
+        document.getElementById("halfholebox").style.display = "none";
+        document.getElementById("box1").style.display = "block";
+    }
 
 }
 function advancedDefaults() {

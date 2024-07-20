@@ -330,7 +330,22 @@ const MIDI_CC_106 = 106; // from WARBL & from Config Tool. Various values as fol
 	const MIDI_CC_106_VALUE_73 = 73; //from WARBL. WARBL2 BLE connection interval high byte
 	const MIDI_CC_106_VALUE_74 = 74; //from WARBL. WARBL2 battery percentage
 
-    /* 75-99	unused -- can be used for WARBL2 */
+    /* Current Config Tool tab in compact view*/
+    const MIDI_CC_106_VALUE_75 = 75; //from Config Tool, currently shown tab: Presets (Main)
+    const MIDI_CC_106_VALUE_76 = 76; //from Config Tool, currently shown tab: Settings
+    const MIDI_CC_106_VALUE_77 = 77; //from Config Tool, currently shown tab: Calibration
+    const MIDI_CC_106_VALUE_78 = 78; //from Config Tool, currently shown tab: MidiMonitor
+    const MIDI_CC_106_VALUE_79 = 79; //from Config Tool, currently shown tab: Presets-Vibrato
+    const MIDI_CC_106_VALUE_80 = 80; //from Config Tool, currently shown tab: Presets-Trigger
+    const MIDI_CC_106_VALUE_81 = 81; //from Config Tool, currently shown tab: Presets-HalfHole
+    const MIDI_CC_106_VALUE_82 = 82; //from Config Tool, currently shown tab: Presets-Pressure
+    const MIDI_CC_106_VALUE_83 = 83; //from Config Tool, currently shown tab: Presets-IMU
+    const MIDI_CC_106_VALUE_84 = 84; //from Config Tool, currently shown tab: Presets-Drones
+    const MIDI_CC_106_VALUE_85 = 85; //from Config Tool, currently shown tab: Presets-Buttons
+    const MIDI_CC_106_VALUE_86 = 86; //from Config Tool, currently shown tab: Presets-ImportExport
+
+    /* 87-99	unused -- can be used for WARBL2 */
+
 
 ; //Button Actions, see above 102 90/00
 	const MIDI_CC_106_VALUE_100 = 100; //Bidirectional. button action 0 
