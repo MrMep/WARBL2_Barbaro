@@ -247,6 +247,20 @@
 #define GREEN_LED 1
 #define BLUE_LED 2
 
+//Config tool tabs
+#define CONFIG_TAB_NONE  0 //Comm mode off
+#define CONFIG_TAB_PRESETS 1
+#define CONFIG_TAB_SETTINGS 2 //Send Battery information
+#define CONFIG_TAB_CALIBRATION 3 //Send Fingering Pattern
+#define CONFIG_TAB_MIDIMONITOR 4
+#define CONFIG_TAB_VIBRATO 5 //Send PB
+#define CONFIG_TAB_TRIGGER 6 //Send Pressure, breathMode
+#define CONFIG_TAB_HALFHOLE 7
+#define CONFIG_TAB_PRESSURE 8 //Send Pressure
+#define CONFIG_TAB_IMU 9
+#define CONFIG_TAB_DRONES 10 //Send Pressure
+#define CONFIG_TAB_BUTTONS 11 //Send Button actions
+#define CONFIG_TAB_IMPORTEXPORT 12
 
 /* MIDI Config Tool Constants */
 //General constants
@@ -577,7 +591,23 @@
 #define MIDI_CC_106_VALUE_72 72  // from WARBL. WARBL2 BLE connection interval low byte
 #define MIDI_CC_106_VALUE_73 73  // from WARBL. WARBL2 BLE connection interval high byte
 #define MIDI_CC_106_VALUE_74 74  // from WARBL. WARBL2 battery percentage
-/* 75-99	unused -- can be used for WARBL2 */
+/* 75-82	unused -- can be used for WARBL2 */
+
+/* Current Config Tool tab in compact view*/
+#define MIDI_CC_106_VALUE_83 83 //from Config Tool, currently shown tab: NONE, com mode off
+#define MIDI_CC_106_VALUE_84 84 //from Config Tool, currently shown tab: Presets (Main)
+#define MIDI_CC_106_VALUE_85 85 //from Config Tool, currently shown tab: Settings
+#define MIDI_CC_106_VALUE_86 86 //from Config Tool, currently shown tab: Calibration
+#define MIDI_CC_106_VALUE_87 87 //from Config Tool, currently shown tab: MidiMonitor
+#define MIDI_CC_106_VALUE_88 88 //from Config Tool, currently shown tab: Presets-Vibrato
+#define MIDI_CC_106_VALUE_89 89 //from Config Tool, currently shown tab: Presets-Trigger
+#define MIDI_CC_106_VALUE_90 90 //from Config Tool, currently shown tab: Presets-HalfHole
+#define MIDI_CC_106_VALUE_91 91 //from Config Tool, currently shown tab: Presets-Pressure
+#define MIDI_CC_106_VALUE_92 92 //from Config Tool, currently shown tab: Presets-IMU
+#define MIDI_CC_106_VALUE_93 93 //from Config Tool, currently shown tab: Presets-Drones
+#define MIDI_CC_106_VALUE_94 94 //from Config Tool, currently shown tab: Presets-Buttons
+#define MIDI_CC_106_VALUE_95 95 //from Config Tool, currently shown tab: Presets-ImportExport
+/* 96-99	unused -- can be used to extend the above list*/
 
 //Button Actions, see above 102  90/99
 #define MIDI_CC_106_VALUE_100 100  // Bidirectional. button action 0
@@ -771,11 +801,13 @@
 #define MIDI_HALF_HOLE_DISABLED_OFFSET_START (MIDI_CC_109_OFFSET + MIDI_HALF_HOLE_DISABLED_START)  // Beginning of half-hole enabled
 #define MIDI_HALF_HOLE_DISABLED_OFFSET_END (MIDI_CC_109_OFFSET + MIDI_HALF_HOLE_DISABLED_END)      // End of half-hole enabled
 
-
 #define MIDI_CUSTOM_CHARTS_START MIDI_CC_109_VALUE_100                                 // Beginning of WARBL2 CustomCharts
 #define MIDI_CUSTOM_CHARTS_END MIDI_CC_109_VALUE_103                                   // End of WARBL2 CustomCharts
 #define MIDI_CUSTOM_CHARTS_OFFSET_START (MIDI_CC_109_OFFSET + MIDI_CUSTOM_CHARTS_START)  // Beginning of WARBL2 CustomCharts
 #define MIDI_CUSTOM_CHARTS_OFFSET_END (MIDI_CC_109_OFFSET + MIDI_CUSTOM_CHARTS_END)      // End of WARBL2 CustomCharts
+
+#define MIDI_CONFIG_TAB_START MIDI_CC_106_VALUE_83 //Beginning of Config Tool Conpact View Tabs
+#define MIDI_CONFIG_TAB_END MIDI_CC_106_VALUE_95 //End of Config Tool Conpact View Tabs
 
 /* Various single Values */
 #define MIDI_MOMENTARY_OFF MIDI_CC_102_VALUE_117  // Bidirectional. momentary off

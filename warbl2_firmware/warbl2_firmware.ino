@@ -322,6 +322,7 @@ unsigned int doubleClickTimer = 0;
 // Variables for communication with the WARBL Configuration Tool
 bool communicationMode = 0;                       // Whether we are currently communicating with the tool.
 byte communicationModeSource = MIDI_SOURCE_NONE;  // The source of the last MIDI_ENTER_COMM_MODE received: USB or BLE
+byte configToolCurrentTab = CONFIG_TAB_NONE;      // Currently selected tab in Config tool compact view
 byte buttonReceiveMode = 100;                     // Which row in the button configuration matrix for which we're currently receiving data.
 int pressureReceiveMode = 100;                    // Indicates the variable for which we're currently receiving data
 byte fingeringReceiveMode = 0;                    // Indicates the mode (instrument) for  which a fingering pattern is going to be sent

@@ -64,7 +64,8 @@ void manageBattery(bool send) {
         // Detect change in charging status
         if (prevTempChargingStatus != tempChargingStatus) {
             statusChanged = 1;
-            if (communicationMode) {  // Send the status to the Config Tool if it has changed.
+            if ((communicationMode && configToolCurrentTab == CONFIG_TAB_NONE)
+                || configToolCurrentTab == CONFIG_TAB_SETTINGS) {  // Send the status to the Config Tool if it has changed.
                 sendMIDICouplet(MIDI_SEND_BATTERY_CHARGE_STATUS, tempChargingStatus);
             }
             prevTempChargingStatus = tempChargingStatus;
@@ -95,7 +96,10 @@ void manageBattery(bool send) {
 
             prevChargingStatus = chargingStatus;
 
-            sendMIDICouplet(MIDI_SEND_BATTERY_CHARGE_STATUS, chargingStatus);  // Send charging status again in case a fault was detected.
+            if ((communicationMode && configToolCurrentTab == CONFIG_TAB_NONE)
+                || configToolCurrentTab == CONFIG_TAB_SETTINGS) {
+                sendMIDICouplet(MIDI_SEND_BATTERY_CHARGE_STATUS, chargingStatus);  // Send charging status again in case a fault was detected.
+                }
         }
     }
 
@@ -144,7 +148,8 @@ void manageBattery(bool send) {
     // Send voltage and charging status to Config Tool.
     static byte cycles = 40;  // 40 cycles is 30 seconds.
     if (cycles == 40 || send) {
-        if (communicationMode) {
+        if ((communicationMode && configToolCurrentTab == CONFIG_TAB_NONE)
+                || configToolCurrentTab == CONFIG_TAB_SETTINGS) {
             sendMIDICouplet(MIDI_SEND_BATTERY_VOLTAGE, (((smoothed_voltage + 0.005) * 100) - 50));  // Convert to 0-127 for sending to Config Tool as 7 bits (possible range of 0.5 - 1.77 V in this format).
             sendMIDICouplet(MIDI_SEND_BATTERY_CHARGE_STATUS, chargingStatus);                       // Send charging status.
             sendMIDICouplet(MIDI_SEND_BATTERY_CHARGE_PERC, battLevel);                              // Send battery level.

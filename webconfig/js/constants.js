@@ -19,6 +19,23 @@ var HALF_HOLE_LOW_MAX_PERC = 60; //Max percentage of toneHolecCovered dedicated 
 var HALF_HOLE_HIGH_MIN_PERC = 10; //Min percentage of toneHolecCovered dedicated to upper window (hole closed)
 var HALF_HOLE_HIGH_MAX_PERC = 35; //Max percentage of toneHolecCovered dedicated to upper window (hole closed)
 
+
+//compact view tabs
+const CONFIG_TAB_NONE = 0;
+const CONFIG_TAB_PRESETS = 1;
+const CONFIG_TAB_SETTINGS = 2;
+const CONFIG_TAB_CALIBRATION = 3;
+const CONFIG_TAB_MIDIMONITOR = 4;
+const CONFIG_TAB_VIBRATO = 5;
+const CONFIG_TAB_TRIGGER = 6;
+const CONFIG_TAB_HALFHOLE = 7;
+const CONFIG_TAB_PRESSURE = 8;
+const CONFIG_TAB_IMU = 9;
+const CONFIG_TAB_DRONES = 10;
+const CONFIG_TAB_BUTTONS = 11;
+const CONFIG_TAB_IMPORTEXPORT = 12;
+
+
 //MIDI Human readable constants: see below
 
 /* Numerical constants
@@ -331,20 +348,21 @@ const MIDI_CC_106 = 106; // from WARBL & from Config Tool. Various values as fol
 	const MIDI_CC_106_VALUE_74 = 74; //from WARBL. WARBL2 battery percentage
 
     /* Current Config Tool tab in compact view*/
-    const MIDI_CC_106_VALUE_75 = 75; //from Config Tool, currently shown tab: Presets (Main)
-    const MIDI_CC_106_VALUE_76 = 76; //from Config Tool, currently shown tab: Settings
-    const MIDI_CC_106_VALUE_77 = 77; //from Config Tool, currently shown tab: Calibration
-    const MIDI_CC_106_VALUE_78 = 78; //from Config Tool, currently shown tab: MidiMonitor
-    const MIDI_CC_106_VALUE_79 = 79; //from Config Tool, currently shown tab: Presets-Vibrato
-    const MIDI_CC_106_VALUE_80 = 80; //from Config Tool, currently shown tab: Presets-Trigger
-    const MIDI_CC_106_VALUE_81 = 81; //from Config Tool, currently shown tab: Presets-HalfHole
-    const MIDI_CC_106_VALUE_82 = 82; //from Config Tool, currently shown tab: Presets-Pressure
-    const MIDI_CC_106_VALUE_83 = 83; //from Config Tool, currently shown tab: Presets-IMU
-    const MIDI_CC_106_VALUE_84 = 84; //from Config Tool, currently shown tab: Presets-Drones
-    const MIDI_CC_106_VALUE_85 = 85; //from Config Tool, currently shown tab: Presets-Buttons
-    const MIDI_CC_106_VALUE_86 = 86; //from Config Tool, currently shown tab: Presets-ImportExport
+    const MIDI_CC_106_VALUE_83 = 83; //from Config Tool, currently shown tab: None (Comm mode off)
+    const MIDI_CC_106_VALUE_84 = 84; //from Config Tool, currently shown tab: Presets (Main)
+    const MIDI_CC_106_VALUE_85 = 85; //from Config Tool, currently shown tab: Settings
+    const MIDI_CC_106_VALUE_86 = 86; //from Config Tool, currently shown tab: Calibration
+    const MIDI_CC_106_VALUE_87 = 87; //from Config Tool, currently shown tab: MidiMonitor
+    const MIDI_CC_106_VALUE_88 = 88; //from Config Tool, currently shown tab: Presets-Vibrato
+    const MIDI_CC_106_VALUE_89 = 89; //from Config Tool, currently shown tab: Presets-Trigger
+    const MIDI_CC_106_VALUE_90 = 90; //from Config Tool, currently shown tab: Presets-HalfHole
+    const MIDI_CC_106_VALUE_91 = 91; //from Config Tool, currently shown tab: Presets-Pressure
+    const MIDI_CC_106_VALUE_92 = 92; //from Config Tool, currently shown tab: Presets-IMU
+    const MIDI_CC_106_VALUE_93 = 93; //from Config Tool, currently shown tab: Presets-Drones
+    const MIDI_CC_106_VALUE_94 = 94; //from Config Tool, currently shown tab: Presets-Buttons
+    const MIDI_CC_106_VALUE_95 = 95; //from Config Tool, currently shown tab: Presets-ImportExport
 
-    /* 87-99	unused -- can be used for WARBL2 */
+    /* 88-99	unused -- can be used for WARBL2 */
 
 
 ; //Button Actions, see above 102 90/00
@@ -541,6 +559,9 @@ const MIDI_CUSTOM_CHARTS_START = MIDI_CC_109_VALUE_100; //Beginning of WARBL2 Cu
 const MIDI_CUSTOM_CHARTS_END = MIDI_CC_109_VALUE_103; //End of WARBL2 CustomCharts
 const MIDI_CUSTOM_CHARTS_OFFSET_START = MIDI_CC_109_OFFSET + MIDI_CUSTOM_CHARTS_START; //Beginning of WARBL2 CustomCharts
 const MIDI_CUSTOM_CHARTS_OFFSET_END = MIDI_CC_109_OFFSET + MIDI_CUSTOM_CHARTS_END; //End of WARBL2 CustomCharts
+
+const MIDI_CONFIG_TAB_START = MIDI_CC_106_VALUE_83; //Beginning of Config Tool Conpact View Tabs
+const MIDI_CONFIG_TAB_END = MIDI_CC_106_VALUE_95; //End of Config Tool Conpact View Tabs
 
 /* Various single Values */
 const MIDI_MOMENTARY_OFF = MIDI_CC_102_VALUE_117; // Bidirectional. momentary off

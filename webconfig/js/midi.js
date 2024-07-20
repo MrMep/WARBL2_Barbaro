@@ -169,14 +169,16 @@ label: the label text for the option
 group: the radio group name
 enabled: redundant for now
 minFwVersion: minumun fw version that enables this option
+warblCommIndex: index to be sent to WARBL, so that it can modulate MIDI trnsmissions based on what the users sees
 */
 class NavBarItem {
-    constructor(element, label, group, enabled, minFwVersion) {
+    constructor(element, label, group, enabled, minFwVersion, warblCommIndex) {
         this.element = element;
         this.name = label;
         this.group = group;
         this.enabled = enabled;
         this.minFwVersion = minFwVersion;
+        this.warblCommIndex = warblCommIndex;
     }
 
     isEnabled() {
@@ -263,10 +265,10 @@ function initNavBars() {
     }
 
     //Top nav Elements
-    topNavBarElements.push(new NavBarItem('middleControlBox', 'Instruments', 'topNav', true, 0));
-    topNavBarElements.push(new NavBarItem('WARBL2Settings', 'Settings', 'topNav', true, 4.0));
-    topNavBarElements.push(new NavBarItem('opticalCalibration', 'Calibration', 'topNav', true, 0));
-    topNavBarElements.push(new NavBarItem('midiMonitorBox', 'MIDI Monitor', 'topNav', true, 4.0));
+    topNavBarElements.push(new NavBarItem('middleControlBox', 'Instruments', 'topNav', true, 0, CONFIG_TAB_PRESETS));
+    topNavBarElements.push(new NavBarItem('WARBL2Settings', 'Settings', 'topNav', true, 4.0, CONFIG_TAB_SETTINGS));
+    topNavBarElements.push(new NavBarItem('opticalCalibration', 'Calibration', 'topNav', true, 0, CONFIG_TAB_CALIBRATION));
+    topNavBarElements.push(new NavBarItem('midiMonitorBox', 'MIDI Monitor', 'topNav', true, 4.0, CONFIG_TAB_MIDIMONITOR));
 
     
     var elCount = 0;
@@ -283,17 +285,16 @@ function initNavBars() {
         }
     }
 
-
     //Instr nav elements
-    instrNavBarElements.push(new NavBarItem('topControls', 'Main', 'instrNav', true, 0));
-    instrNavBarElements.push(new NavBarItem('box5', 'Vibrato and Slide', 'instrNav', true, 0));
-    instrNavBarElements.push(new NavBarItem('box1', 'Trigger and Register', 'instrNav', true, 0));
-    instrNavBarElements.push(new NavBarItem('halfholebox', 'Half holing', 'instrNav', true, 4.2));
-    instrNavBarElements.push(new NavBarItem('box6', 'Pressure', 'instrNav', true, 4.0));
-    instrNavBarElements.push(new NavBarItem('box10', 'IMU', 'instrNav', true, 4.0));
-    instrNavBarElements.push(new NavBarItem('box3', 'Drones', 'instrNav', true, 0));
-    instrNavBarElements.push(new NavBarItem('buttonBox', 'Buttons', 'instrNav', true, 0));
-    instrNavBarElements.push(new NavBarItem('importexport', 'Import/Export', 'instrNav', true, 0));
+    instrNavBarElements.push(new NavBarItem('topControls', 'Main', 'instrNav', true, 0, CONFIG_TAB_PRESETS));
+    instrNavBarElements.push(new NavBarItem('box5', 'Vibrato and Slide', 'instrNav', true, 0, CONFIG_TAB_VIBRATO));
+    instrNavBarElements.push(new NavBarItem('box1', 'Trigger and Register', 'instrNav', true, 0, CONFIG_TAB_TRIGGER));
+    instrNavBarElements.push(new NavBarItem('halfholebox', 'Half holing', 'instrNav', true, 4.2, CONFIG_TAB_HALFHOLE));
+    instrNavBarElements.push(new NavBarItem('box6', 'Pressure', 'instrNav', true, 4.0, CONFIG_TAB_PRESSURE));
+    instrNavBarElements.push(new NavBarItem('box10', 'IMU', 'instrNav', true, 4.0, CONFIG_TAB_IMU));
+    instrNavBarElements.push(new NavBarItem('box3', 'Drones', 'instrNav', true, 0, CONFIG_TAB_DRONES));
+    instrNavBarElements.push(new NavBarItem('buttonBox', 'Buttons', 'instrNav', true, 0, CONFIG_TAB_BUTTONS));
+    instrNavBarElements.push(new NavBarItem('importexport', 'Import/Export', 'instrNav', true, 0, CONFIG_TAB_IMPORTEXPORT));
 
     elCount = 0;
     for (var i = 0; i < instrNavBarElements.length; i++) {
@@ -561,6 +562,7 @@ function ontopNavRadio(selection) {
     if (element) {
         currentTopNavElement = topNavBarElements[selection].element
         element.style.display = 'block';
+        sendToWARBL(MIDI_CC_106, MIDI_CONFIG_TAB_START + topNavBarElements[selection].warblCommIndex);
     }
 }
 
@@ -581,6 +583,7 @@ function oninstrNavRadio(selection) {
     if (element) {
         currentInstrElement = instrNavBarElements[selection].element;
         element.style.display = 'block';
+        sendToWARBL(MIDI_CC_106, MIDI_CONFIG_TAB_START + instrNavBarElements[selection].warblCommIndex);
     }
 }
 
@@ -1280,11 +1283,13 @@ function WARBL_Receive(event) {
             return;
 
         case 0xB0: //incoming CC from WARBL
-            if (MIDI_DEBUG) {
-                console.log("From WARBL", data1, data2);
-            }
+
             if (parseFloat(data0 & 0x0f) ==  MIDI_CONFIG_TOOL_CHANNEL-1) { //if it's channel 7 it's from WARBL 
 
+                if (MIDI_DEBUG) {
+                    console.log("From WARBL", data1, data2);
+                }
+                
                 //console.log("WARBL_Receive: "+data0+" "+data1+" "+data2);
 
                 // Enable the import preset button

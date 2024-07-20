@@ -1080,15 +1080,12 @@ void sendToConfig(bool newPattern, bool newPressure) {
 
     unsigned long nowtime = millis();
 
-    if (communicationMode) {
+    if ((communicationMode && configToolCurrentTab == CONFIG_TAB_NONE)
+            || configToolCurrentTab == CONFIG_TAB_CALIBRATION) {
+
         if (newPattern && patternChanged == false) {  // If the fingering pattern has changed, start a timer.
             patternChanged = true;
             patternSendTimer = nowtime;
-        }
-
-        if (newPressure && pressureChanged == false) {  // If the pressure has changed, start a timer.
-            pressureChanged = true;
-            pressureSendTimer = nowtime;
         }
 
         if (patternChanged && (nowtime - patternSendTimer) > 25) {  // If some time has past, send the new pattern to the Config Tool.
@@ -1097,6 +1094,17 @@ void sendToConfig(bool newPattern, bool newPressure) {
             sendMIDI(MIDI_SEND_HALF_HOLES_MSG);
             sendMIDICouplet(MIDI_CC_114, currentFP.fp.halfHoles >> 7, MIDI_CC_115, lowByte(currentFP.fp.halfHoles));  // Because it's MIDI we have to send it in two 7-bit chunks.
             patternChanged = false;
+        }
+    }
+
+    if ((communicationMode && configToolCurrentTab == CONFIG_TAB_NONE)
+            || configToolCurrentTab == CONFIG_TAB_TRIGGER
+            || configToolCurrentTab == CONFIG_TAB_PRESSURE
+            || configToolCurrentTab == CONFIG_TAB_DRONES) {
+
+        if (newPressure && pressureChanged == false) {  // If the pressure has changed, start a timer.
+            pressureChanged = true;
+            pressureSendTimer = nowtime;
         }
 
         if (pressureChanged && (nowtime - pressureSendTimer) > 25) {  // If some time has past, send the new pressure to the Config Tool.
@@ -2096,6 +2104,7 @@ void handleControlChange(byte source, byte channel, byte number, byte value) {
                 else if (value == MIDI_ENTER_COMM_MODE) {  // When communication is established, send all current settings to tool.
                     communicationMode = 1;
                     communicationModeSource = source;
+                    configToolCurrentTab = CONFIG_TAB_NONE;
 #if DEBUG_CONFIG_TOOL
                     Serial.print("Entering CommMode from ");
                     Serial.println(communicationModeSource);
@@ -2108,6 +2117,7 @@ void handleControlChange(byte source, byte channel, byte number, byte value) {
                     if (communicationModeSource == source) {
                         communicationMode = 0;
                         communicationModeSource = MIDI_SOURCE_NONE;
+                        configToolCurrentTab = CONFIG_TAB_NONE;
                     }
 #if DEBUG_CONFIG_TOOL
                     Serial.print("Exiting CommMode from ");
@@ -2424,6 +2434,15 @@ void handleControlChange(byte source, byte channel, byte number, byte value) {
 
                 else if (value == MIDI_CENTER_YAW) {  // Recenter IMU heading based on current
                     centerIMU();
+                }
+
+                else if (value >= MIDI_CONFIG_TAB_START && value < MIDI_CONFIG_TAB_END) {
+                    configToolCurrentTab = value - MIDI_CONFIG_TAB_START;
+                    communicationMode = configToolCurrentTab > CONFIG_TAB_NONE;
+#if DEBUG_CONFIG_TOOL
+                    Serial.print("Config Tool Tab ");
+                    Serial.println(configToolCurrentTab);
+#endif
                 }
 
                 else if (value >= MIDI_BUTTON_ACTIONS_START) {
@@ -2875,7 +2894,8 @@ void changePitchBend() {
     }
     loadPrefs();
     blinkNumber[GREEN_LED] = abs(pitchBendMode) + 1;
-    if (communicationMode) {
+    if ((communicationMode && configToolCurrentTab == CONFIG_TAB_NONE)
+                || configToolCurrentTab == CONFIG_TAB_VIBRATO) {
         sendMIDI(MIDI_CC_102_MSG, MIDI_PB_MODE_START + pitchBendMode);  //send current pitchbend mode to configuration tool.
     }
 }
